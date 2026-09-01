@@ -1,18 +1,24 @@
 import { create } from 'zustand';
 
+// Expanded statuses for better tracking
+export type ReportStatus = 'PENDING' | 'VERIFIED' | 'ASSIGNED' | 'COLLECTED';
+
 export interface WasteReport {
   id: string;
-  image: string; // Base64 image
+  userId: string; // To know who reported it
+  image: string;
   lat: number;
   lng: number;
-  status: 'PENDING' | 'COLLECTED';
+  description?: string; // Optional
+  category?: string;    // Optional
+  status: ReportStatus;
   timestamp: string;
 }
 
 interface ReportState {
   reports: WasteReport[];
   addReport: (report: Omit<WasteReport, 'id' | 'status' | 'timestamp'>) => void;
-  markCollected: (id: string) => void; // <--- NEW FUNCTION
+  markCollected: (id: string) => void;
 }
 
 export const useReportStore = create<ReportState>((set) => ({
@@ -20,17 +26,16 @@ export const useReportStore = create<ReportState>((set) => ({
   
   addReport: (newReport) => set((state) => ({
     reports: [
-      ...state.reports,
       {
         ...newReport,
         id: Math.random().toString(36).substring(7),
-        status: 'PENDING',
+        status: 'PENDING', // All reports start as pending
         timestamp: new Date().toISOString(),
-      }
+      },
+      ...state.reports, // Put new reports at the top of the list!
     ]
   })),
 
-  // --- NEW FUNCTION: Finds the report and changes its status ---
   markCollected: (id) => set((state) => ({
     reports: state.reports.map((report) => 
       report.id === id ? { ...report, status: 'COLLECTED' } : report
