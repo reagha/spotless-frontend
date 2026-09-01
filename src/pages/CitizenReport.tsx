@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useReportStore } from '../store/useReportStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { Camera, MapPin, Loader2, CheckCircle, LogOut, Clock, Truck, List } from 'lucide-react';
+import { Camera, MapPin, Loader2, CheckCircle, LogOut, Clock,  List } from 'lucide-react';
 
 export default function CitizenReport() {
   // Tabs: 'new' for reporting, 'tracking' for dashboard
