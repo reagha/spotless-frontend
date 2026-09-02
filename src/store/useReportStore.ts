@@ -1,44 +1,75 @@
 import { create } from 'zustand';
 
-// Expanded statuses for better tracking
-export type ReportStatus = 'PENDING' | 'VERIFIED' | 'ASSIGNED' | 'COLLECTED';
+// Added IN_PROGRESS and ISSUE_REPORTED
+export type ReportStatus = 'PENDING' | 'VERIFIED' | 'ASSIGNED' | 'IN_PROGRESS' | 'COLLECTED' | 'REJECTED' | 'ISSUE_REPORTED';
+export type SeverityLevel = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface WasteReport {
   id: string;
-  userId: string; // To know who reported it
+  userId: string;
   image: string;
   lat: number;
   lng: number;
-  description?: string; // Optional
-  category?: string;    // Optional
+  description?: string;
+  category?: string;
   status: ReportStatus;
   timestamp: string;
+  aiReason?: string;
+  assignedTo?: string;
+  severity?: SeverityLevel;
+  // New Collector Fields
+  proofImage?: string;
+  issueReason?: string;
 }
 
 interface ReportState {
   reports: WasteReport[];
   addReport: (report: Omit<WasteReport, 'id' | 'status' | 'timestamp'>) => void;
-  markCollected: (id: string) => void;
+  startCollection: (id: string) => void;
+  markCollected: (id: string, proofImage: string) => void;
+  reportIssue: (id: string, reason: string) => void;
 }
 
 export const useReportStore = create<ReportState>((set) => ({
   reports: [],
   
-  addReport: (newReport) => set((state) => ({
-    reports: [
-      {
-        ...newReport,
-        id: Math.random().toString(36).substring(7),
-        status: 'PENDING', // All reports start as pending
-        timestamp: new Date().toISOString(),
-      },
-      ...state.reports, // Put new reports at the top of the list!
-    ]
+  addReport: (newReport) => {
+    const newId = Math.random().toString(36).substring(7);
+    set((state) => ({
+      reports: [
+        { ...newReport, id: newId, status: 'PENDING', timestamp: new Date().toISOString() },
+        ...state.reports,
+      ]
+    }));
+
+    // AI SIMULATION (Auto-Assigns to Truck 02)
+    setTimeout(() => {
+      set((state) => ({
+        reports: state.reports.map(r => {
+          if (r.id !== newId) return r;
+          if (!r.category) return { ...r, status: 'REJECTED', aiReason: "AI Confidence Low: No identifiable waste." };
+          
+          let calculatedSeverity: SeverityLevel = 'LOW';
+          if (r.category === 'Mixed' || r.category === 'Electronic') calculatedSeverity = 'CRITICAL';
+          else if (r.category === 'Plastic') calculatedSeverity = 'HIGH';
+          else if (r.category === 'Organic') calculatedSeverity = 'MEDIUM';
+
+          return { ...r, status: 'ASSIGNED', assignedTo: 'Truck 02', severity: calculatedSeverity };
+        })
+      }));
+    }, 4000);
+  },
+
+  // COLLECTOR FUNCTIONS
+  startCollection: (id) => set((state) => ({
+    reports: state.reports.map(r => r.id === id ? { ...r, status: 'IN_PROGRESS' } : r)
   })),
 
-  markCollected: (id) => set((state) => ({
-    reports: state.reports.map((report) => 
-      report.id === id ? { ...report, status: 'COLLECTED' } : report
-    )
+  markCollected: (id, proofImage) => set((state) => ({
+    reports: state.reports.map(r => r.id === id ? { ...r, status: 'COLLECTED', proofImage } : r)
+  })),
+
+  reportIssue: (id, reason) => set((state) => ({
+    reports: state.reports.map(r => r.id === id ? { ...r, status: 'ISSUE_REPORTED', issueReason: reason } : r)
   })),
 }));

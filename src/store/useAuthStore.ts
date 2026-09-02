@@ -1,31 +1,35 @@
 import { create } from 'zustand';
+import axios from 'axios';
 
-// The different roles in our system
-type Role = 'CITIZEN' | 'ADMIN' | 'COLLECTOR';
+// API Base URL - match Rodney's server
+export const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const api = axios.create({
+  baseURL: BACKEND_URL,
+});
 
-interface User {
+// Rodney's exact enum mapping
+export type Role = 'spotter' | 'collector' | 'admin';
+
+export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   role: Role;
+  collectorId: string | null;
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (role: Role) => void;
+  setUser: (user: User) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  // We start as NOT logged in
   user: null,
   isAuthenticated: false,
   
-  // A fake login function so we can test the different views instantly
-  login: (role) => set({ 
-    user: { id: '123', name: 'Test User', role }, 
-    isAuthenticated: true 
-  }),
-  
+  setUser: (user) => set({ user, isAuthenticated: true }),
   logout: () => set({ user: null, isAuthenticated: false }),
 }));
