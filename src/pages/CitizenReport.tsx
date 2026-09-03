@@ -191,7 +191,15 @@ export default function CitizenReport() {
               myReports.map((report) => (
                 <div key={report.id} className="bg-white rounded-3xl shadow-lg border border-white p-3 flex gap-4 items-center">
                   <div className="w-24 h-24 bg-gray-100 rounded-2xl overflow-hidden shrink-0 shadow-inner">
-                    {report.imagePath && <img src={`${BACKEND_URL}/${report.imagePath}`} className="w-full h-full object-cover" />}
+                    {report.imagePath && <img 
+  src={`${BACKEND_URL}/${report.imagePath}`} 
+  alt="Waste" 
+  className="w-full h-full object-cover"
+  onError={(e) => {
+    // If the image is 404, show a clean placeholder so the UI doesn't look broken
+    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
+  }}
+/>}
                   </div>
                   <div className="flex-1">
                     <span className="text-[10px] font-black text-[#1B2CC1] uppercase tracking-widest">{report.priority ? `${report.priority} PRIORITY` : 'Analyzing'}</span>

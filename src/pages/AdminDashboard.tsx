@@ -106,7 +106,15 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex gap-3">
                       <div className="w-20 h-20 bg-gray-100 rounded-lg shrink-0 overflow-hidden border border-gray-200 group-hover:shadow-md transition-all">
-                        {report.imagePath && <img src={`${BACKEND_URL}/${report.imagePath}`} className="w-full h-full object-cover" />}
+                        {report.imagePath && <img 
+  src={`${BACKEND_URL}/${report.imagePath}`} 
+  alt="Waste" 
+  className="w-full h-full object-cover"
+  onError={(e) => {
+    // If the image is 404, show a clean placeholder so the UI doesn't look broken
+    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
+  }}
+/>}
                       </div>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
