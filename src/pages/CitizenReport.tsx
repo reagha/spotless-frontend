@@ -29,35 +29,15 @@ export default function CitizenReport() {
     }
   }, [activeTab, user]);
 
-  const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+ const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
-    // 1. Check if it's actually an image
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file.');
-      return;
-    }
+    // 1. Save the file for Rodney's API
+    setImageFile(file); 
 
-    setImageFile(file); // For Rodney's API
-
-    const reader = new FileReader();
-    
-    reader.onloadstart = () => setIsSubmitting(true); // Reuse loading state for UI
-    
-    reader.onloadend = () => {
-      if (reader.result) {
-        setImagePreview(reader.result as string);
-      }
-      setIsSubmitting(false);
-    };
-
-    reader.onerror = () => {
-      console.error("FileReader Error: ", reader.error);
-      alert("Failed to read the image file.");
-      setIsSubmitting(false);
-    };
-
-    reader.readAsDataURL(file); 
+    // 2. Generate a local URL (This is faster and more reliable than FileReader for previews)
+    const localUrl = URL.createObjectURL(file);
+    setImagePreview(localUrl);
   }
 };
 
@@ -142,7 +122,13 @@ export default function CitizenReport() {
               <input type="file" accept="image/*" capture="environment" className="hidden" ref={fileInputRef} onChange={handleImageCapture} />
               {imagePreview ? (
                 <div className="relative rounded-2xl overflow-hidden h-56 border-4 border-[#2A835F] shadow-md">
-                  <img src={'${BACKEND_URL}/${report.imagePath}'} alt="Waste" className="w-full h-full object-cover" />
+                 <img 
+      src={imagePreview} 
+      alt="Waste Preview" 
+      className="w-full h-full object-cover"
+      onLoad={() => console.log("Preview loaded successfully")}
+      onError={() => console.error("Preview failed to load")}
+    />
                   <button onClick={() => fileInputRef.current?.click()} className="absolute bottom-3 right-3 bg-white text-[#2A835F] font-black text-xs px-5 py-2.5 rounded-full shadow-xl">RETAKE</button>
                 </div>
               ) : (
