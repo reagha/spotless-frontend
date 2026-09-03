@@ -30,14 +30,36 @@ export default function CitizenReport() {
   }, [activeTab, user]);
 
   const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+  const file = e.target.files?.[0];
+  if (file) {
+    // 1. Check if it's actually an image
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
     }
-  };
+
+    setImageFile(file); // For Rodney's API
+
+    const reader = new FileReader();
+    
+    reader.onloadstart = () => setIsSubmitting(true); // Reuse loading state for UI
+    
+    reader.onloadend = () => {
+      if (reader.result) {
+        setImagePreview(reader.result as string);
+      }
+      setIsSubmitting(false);
+    };
+
+    reader.onerror = () => {
+      console.error("FileReader Error: ", reader.error);
+      alert("Failed to read the image file.");
+      setIsSubmitting(false);
+    };
+
+    reader.readAsDataURL(file); 
+  }
+};
 
   const getLocation = () => {
     setIsLocating(true);
