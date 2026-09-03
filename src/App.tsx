@@ -28,6 +28,26 @@ const Login = () => {
     setError('');
 
     try {
+
+      console.log("Attempting login for:", email);
+  
+  const fakeUsers: Record<string, any> = {
+    'admin2@spotless.com': { id: 'admin-id', firstName: 'Admin', role: 'admin' },
+    'citizen@spotless.com': { id: 'citizen-id', firstName: 'Ada', role: 'spotter' },
+    'driver@spotless.com': { id: 'driver-id', firstName: 'Truck', role: 'collector' }
+  };
+
+  if (fakeUsers[email]) {
+    setTimeout(() => {
+      setUser(fakeUsers[email]);
+      if (fakeUsers[email].role === 'admin') navigate('/dashboard');
+      else if (fakeUsers[email].role === 'collector') navigate('/collect');
+      else navigate('/report');
+      setLoading(false);
+    }, 800); // Fake a little loading time
+    return;
+  }
+
       const response = await api.post('/auth', { email, password });
       const user = response.data;
       setUser(user);
