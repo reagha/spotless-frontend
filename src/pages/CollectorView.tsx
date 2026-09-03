@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuthStore, api } from '../store/useAuthStore';
 import { LogOut, Navigation, CheckCircle, Play, Camera,  Loader2, MapPin } from 'lucide-react';
 import { BACKEND_URL } from '../store/useAuthStore';
+import { useImageCache } from '../store/useImageCache';
+import { SmartImage } from '../components/SmartImage';
 
 export default function CollectorView() {
   const logout = useAuthStore((state) => state.logout);
@@ -58,15 +60,7 @@ export default function CollectorView() {
             {myHistory.map((report) => (
               <div key={report.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3 flex gap-4">
                 <div className="w-20 h-20 bg-gray-100 rounded-xl shrink-0 overflow-hidden">
-                   {report.imagePath && <img 
-  src={`${BACKEND_URL}/${report.imagePath}`} 
-  alt="Waste" 
-  className="w-full h-full object-cover"
-  onError={(e) => {
-    // If the image is 404, show a clean placeholder so the UI doesn't look broken
-    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
-  }}
-/>}
+                   {report.imagePath && <SmartImage report={report} className="w-full h-full object-cover" />}
                 </div>
                 <div className="flex flex-col justify-center">
                   <h3 className="font-bold text-gray-800 text-sm uppercase">{report.priority || 'Waste Task'} PRIORITY</h3>
@@ -112,15 +106,7 @@ function TaskCard({ report, startCollection, markCollected }: any) {
   return (
     <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
       <div className="relative h-40 bg-gray-100">
-        {report.imagePath && <img 
-  src={`${BACKEND_URL}/${report.imagePath}`} 
-  alt="Waste" 
-  className="w-full h-full object-cover"
-  onError={(e) => {
-    // If the image is 404, show a clean placeholder so the UI doesn't look broken
-    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
-  }}
-/>}
+        {report.imagePath && <SmartImage report={report} className="w-full h-full object-cover" />}
         <div className="absolute top-3 left-3 bg-[#1B2CC1] text-white px-3 py-1 rounded-full text-xs font-black shadow-md uppercase tracking-widest">
           {report.status}
         </div>
@@ -150,15 +136,7 @@ function TaskCard({ report, startCollection, markCollected }: any) {
             
             {proofImage ? (
               <div className="relative">
-                <img 
-  src={`${BACKEND_URL}/${report.imagePath}`} 
-  alt="Waste" 
-  className="w-full h-full object-cover"
-  onError={(e) => {
-    // If the image is 404, show a clean placeholder so the UI doesn't look broken
-    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
-  }}
-/>
+ <SmartImage report={report} className="w-full h-full object-cover" />
                 <button onClick={() => fileInputRef.current?.click()} className="absolute bottom-2 right-2 bg-white text-gray-800 font-bold text-xs px-3 py-1.5 rounded-full shadow-lg">Retake</button>
               </div>
             ) : (

@@ -6,6 +6,7 @@ import { LogOut, Search, Activity, Leaf, BarChart3, List as ListIcon, MapPin } f
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BACKEND_URL } from '../store/useAuthStore';
+import { SmartImage } from '../components/SmartImage';
 
 const getPinColor = (status: string, priority: string | null) => {
   if (status === 'closed') return '#2A835F'; 
@@ -106,15 +107,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex gap-3">
                       <div className="w-20 h-20 bg-gray-100 rounded-lg shrink-0 overflow-hidden border border-gray-200 group-hover:shadow-md transition-all">
-                        {report.imagePath && <img 
-  src={`${BACKEND_URL}/${report.imagePath}`} 
-  alt="Waste" 
-  className="w-full h-full object-cover"
-  onError={(e) => {
-    // If the image is 404, show a clean placeholder so the UI doesn't look broken
-    e.currentTarget.src = "https://placehold.co/400x400/2A835F/white?text=Spotless+Image";
-  }}
-/>}
+                        {report.imagePath && <SmartImage report={report} className="w-full h-full object-cover" />}
                       </div>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
